@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       model: openai(modelName),
       schema: copilotSchema,
       temperature: 0.2,
-      system: `You are Customer Friction Copilot for a SharkNinja-style cross-functional team.
+      system: `You are Customer Feedback Priorities for a SharkNinja-style cross-functional team.
 Your job is to convert public customer reviews into prioritized product, support, app, and operations actions.
 
 Rules:
@@ -93,7 +93,7 @@ Text: ${review.review_text}`
   .join("\n\n")}
 
 Create the structured copilot result for these product sections:
-Summary, What Needs Attention Right Now, Customer Examples, Recommended Owners, Recommended Next Steps, Leadership Summary.
+Summary, Top Issues Requiring Attention, Recommended Next Steps, Customer Examples.
 
 Ordering guidance:
 1. Lead with the issues that require action first, not merely the most common issues.

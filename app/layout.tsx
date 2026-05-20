@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Customer Friction Copilot",
-  description: "A decision copilot for turning customer review smoke signals into prioritized action."
+  title: "Customer Feedback Priorities",
+  description: "Turn customer feedback into clear product and support priorities."
 };
 
 export default function RootLayout({
