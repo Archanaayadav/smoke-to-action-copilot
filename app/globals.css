@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f7f7f2;
+  --foreground: #17201b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(42, 104, 92, 0.13), transparent 30rem),
+    linear-gradient(135deg, #f7f7f2 0%, #eef2eb 45%, #f9f6ef 100%);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+.brief-fragment h3 {
+  margin: 0 0 0.85rem;
+  color: #12231e;
+  font-size: 1.18rem;
+  line-height: 1.25;
+  font-weight: 900;
+}
+
+.brief-fragment p {
+  margin: 0 0 1rem;
+  color: #2f3f38;
+  line-height: 1.7;
+}
+
+.brief-fragment ul {
+  margin: 0.25rem 0 0;
+  padding-left: 1.05rem;
+}
+
+.brief-fragment li {
+  margin: 0.45rem 0;
+  color: #2f3f38;
+  line-height: 1.55;
+}
+
+.brief-fragment strong {
+  color: #10251f;
+}
