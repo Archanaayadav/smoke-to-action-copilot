@@ -8,11 +8,11 @@ import { copilotSchema } from "@/lib/types";
 export const maxDuration = 30;
 
 const modeInstructions = {
-  "PM Brief":
+  Product:
     "Emphasize product prioritization, defect patterns, severity-vs-frequency tradeoffs, and what the PM should put into discovery or sprint planning first.",
-  "Support Brief":
+  Support:
     "Emphasize support playbooks, escalation triggers, customer messaging, evidence needed from tickets, and what support can do before engineering fixes ship.",
-  "Executive Brief":
+  Leadership:
     "Emphasize customer risk, business urgency, ownership clarity, crisp decisions, and executive-ready language without implementation detail overload."
 } as const;
 
@@ -21,13 +21,15 @@ type BriefMode = keyof typeof modeInstructions;
 export async function POST(request: Request) {
   try {
     const { prompt, mode } = (await request.json()) as { prompt?: string; mode?: BriefMode };
-    const selectedMode: BriefMode = mode && mode in modeInstructions ? mode : "PM Brief";
+    const selectedMode: BriefMode = mode && mode in modeInstructions ? mode : "Product";
+    const apiKey = process.env.OPENAI_API_KEY?.trim();
+    const modelName = process.env.OPENAI_MODEL?.trim() || "gpt-4.1-mini";
 
     if (!prompt?.trim()) {
       return NextResponse.json({ error: "Ask a question about the review dataset." }, { status: 400 });
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!apiKey) {
       return NextResponse.json(
         {
           error:
@@ -41,10 +43,10 @@ export async function POST(request: Request) {
     const retrieval = retrieveReviews(prompt, reviews);
 
     const { object } = await generateObject({
-      model: openai(process.env.OPENAI_MODEL ?? "gpt-4.1-mini"),
+      model: openai(modelName),
       schema: copilotSchema,
       temperature: 0.2,
-      system: `You are Smoke-to-Action Copilot for a SharkNinja-style cross-functional team.
+      system: `You are Customer Friction Copilot for a SharkNinja-style cross-functional team.
 Your job is to convert public customer reviews into prioritized product, support, app, and operations actions.
 
 Rules:
@@ -57,8 +59,9 @@ Rules:
 - Map owners specifically: Product, Support, App Engineering, Firmware, Hardware Quality, Operations, Documentation, or Safety/Compliance.
 - Set evidence_strength based on number and quality of supporting reviews: strong for repeated specific evidence, moderate for several directional signals, weak for one or ambiguous signal.
 - Use uncertainty to name what is not yet proven and what evidence would change the call.
-- Keep summary_markdown short: 2 to 4 compact paragraphs or bullets, no long memo.
-- Keep html_brief short, polished, and executive-ready: one memo-style section with a headline, one short paragraph, and 2 to 4 bullets.
+- Keep summary_markdown short: 2 compact paragraphs or 3 bullets maximum.
+- Keep every recommendation short, plain, and operational.
+- Keep html_brief short, polished, and executive-ready: one memo-style section with a headline, one short paragraph, and 2 to 3 bullets.
 - html_brief may only use section, h3, p, ul, li, strong, em, and div tags.
 - No scripts, links, inline styles, images, iframes, or external classes in html_brief.`,
       prompt: `User question:
@@ -89,8 +92,8 @@ Text: ${review.review_text}`
   )
   .join("\n\n")}
 
-Create the structured copilot result. Include all required sections:
-Executive Summary, Top Smoke Signals, Supporting Evidence, Ownership Mapping, Recommended Next Actions, What To Validate Next.
+Create the structured copilot result for these product sections:
+Summary, What Needs Attention Right Now, Customer Examples, Recommended Owners, Recommended Next Steps, Leadership Summary.
 
 Ordering guidance:
 1. Lead with the issues that require action first, not merely the most common issues.
