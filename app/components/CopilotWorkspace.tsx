@@ -11,22 +11,9 @@ const suggestions = [
   "Which issues are hurting customers most?"
 ];
 
-const modes = [
-  {
-    label: "Product",
-    helper: "Priorities and tradeoffs"
-  },
-  {
-    label: "Support",
-    helper: "Customer response and escalation"
-  },
-  {
-    label: "Leadership",
-    helper: "Risk, urgency, and ownership"
-  }
-] as const;
+const modes = ["Product", "Support", "Leadership"] as const;
 
-type BriefMode = (typeof modes)[number]["label"];
+type BriefMode = (typeof modes)[number];
 
 export function CopilotWorkspace() {
   const [prompt, setPrompt] = useState(suggestions[0]);
@@ -61,71 +48,58 @@ export function CopilotWorkspace() {
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-      <nav className="border-b border-stone-200 pb-5">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">SharkNinja</p>
-          <h1 className="mt-2 text-2xl font-black text-stone-950 sm:text-3xl">Customer Feedback Priorities</h1>
-        </div>
+      <nav>
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">SharkNinja</p>
+        <h1 className="mt-2 text-2xl font-black text-stone-950 sm:text-3xl">Customer Feedback Priorities</h1>
       </nav>
 
-      <section className="grid items-start gap-7 py-10 lg:grid-cols-[1.22fr_1fr]">
-        <div className="rounded-2xl border border-teal-100 bg-white/80 p-7 shadow-sm">
-          <h2 className="max-w-2xl text-4xl font-black leading-[1.05] text-stone-950 sm:text-5xl">
-            Customer Feedback Priorities
-          </h2>
-          <p className="mt-4 max-w-xl text-lg leading-8 text-stone-700">
-            Turn customer feedback into clear product and support priorities.
-          </p>
-
-          <div className="mt-8 border-t border-stone-200 pt-6">
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-teal-700">Current priorities</p>
-            {result ? (
+      <section
+        className={`grid items-start gap-8 ${
+          result ? "py-8 lg:grid-cols-[1.22fr_1fr]" : "mx-auto max-w-3xl py-16"
+        }`}
+      >
+        <div className={result ? "rounded-2xl border border-teal-100 bg-white/80 p-7 shadow-sm" : "text-center"}>
+          {!result ? (
+            <>
+              <h1 className="mx-auto max-w-3xl text-4xl font-black leading-[1.05] text-stone-950 sm:text-5xl">
+                Turn customer feedback into clear product and support priorities.
+              </h1>
+              <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-stone-600">
+                Identify the issues most likely to affect reliability, support load, and customer trust.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-xs font-bold uppercase tracking-[0.16em] text-teal-700">Current priorities</p>
               <div className="mt-3 max-w-2xl text-base leading-8 text-stone-800">
                 <p className="mb-3 text-xl font-black leading-7 text-stone-950">
                   {result.issues.slice(0, 3).length} customer issues require immediate attention.
                 </p>
                 <MarkdownText text={result.summary_markdown} />
               </div>
-            ) : (
-              <div className="mt-3 max-w-2xl space-y-4 text-base leading-8 text-stone-700">
-                <h3 className="text-xl font-black leading-7 text-stone-950">
-                  Identify the issues most likely to affect reliability, support load, and customer trust.
-                </h3>
-                <p>
-                  The review set includes signals across app reliability, connected-product setup, and product quality.
-                </p>
-                <p>
-                  Use the brief to decide what needs attention first, then move into ownership and next steps.
-                </p>
-              </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
 
-        <div className="rounded-xl bg-white p-4 shadow-sm ring-1 ring-stone-200">
-          <p className="text-sm font-bold text-teal-800">View for:</p>
-
-          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+        <div className={`rounded-2xl bg-white p-5 shadow-sm ring-1 ring-stone-200 ${result ? "" : "mt-8"}`}>
+          <div className="grid gap-2 sm:grid-cols-3">
             {modes.map((item) => (
               <button
-                key={item.label}
+                key={item}
                 type="button"
-                onClick={() => setMode(item.label)}
-                className={`rounded-lg border p-2.5 text-left transition ${
-                  mode === item.label
+                onClick={() => setMode(item)}
+                className={`rounded-lg border p-2.5 text-center transition ${
+                  mode === item
                     ? "border-teal-700 bg-teal-800 text-white"
                     : "border-stone-200 bg-white text-stone-800 hover:border-teal-400 hover:bg-teal-50"
                 }`}
               >
-                <span className="block text-sm font-black">{item.label}</span>
-                <span className={`mt-1 block text-xs leading-5 ${mode === item.label ? "text-teal-50" : "text-stone-600"}`}>
-                  {item.helper}
-                </span>
+                <span className="block text-sm font-black">{item}</span>
               </button>
             ))}
           </div>
 
-          <p className="mt-4 text-sm font-bold text-teal-800">Common questions</p>
+          <p className="mt-5 text-sm font-bold text-teal-800">Common questions</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {suggestions.map((suggestion) => (
               <button
@@ -141,7 +115,7 @@ export function CopilotWorkspace() {
 
           <div className="mt-4">
             <label htmlFor="prompt" className="text-sm font-bold text-teal-800">
-              Ask a team question
+              Ask a question
             </label>
             <textarea
               id="prompt"
@@ -180,12 +154,7 @@ export function CopilotWorkspace() {
         </section>
       ) : result ? (
         <ResultSections result={result} />
-      ) : (
-        <section className="rounded-lg border border-dashed border-stone-300 bg-white/60 p-8 text-center">
-          <p className="text-sm font-bold uppercase tracking-[0.14em] text-teal-700">Ready</p>
-          <h2 className="mt-2 text-2xl font-black text-stone-950">Ask what needs attention right now.</h2>
-        </section>
-      )}
+      ) : null}
     </main>
   );
 }
